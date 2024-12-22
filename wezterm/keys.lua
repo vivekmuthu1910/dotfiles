@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 
 local function setup(config)
 	config.use_dead_keys = false
-	config.leader = { key = ' ', mods = 'CTRL', timeout_milliseconds = 1000 }
+	config.leader = { key = " ", mods = "CTRL", timeout_milliseconds = 1000 }
 
 	local act = wezterm.action
 	config.keys = {
@@ -37,4 +37,3 @@ end
 return {
 	setup_keys = setup,
 }
-

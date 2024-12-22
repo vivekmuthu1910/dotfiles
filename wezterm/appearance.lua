@@ -52,4 +52,3 @@ return {
 		config.command_palette_fg_color = "rgb(126, 86, 194)"
 	end,
 }
-
