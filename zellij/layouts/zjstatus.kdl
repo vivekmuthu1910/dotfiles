@@ -1,0 +1,32 @@
+layout {
+    pane
+    pane size=1 borderless=true {
+        plugin location="file:/usr2/vivekam/.config/zellij/plugins/zjstatus.wasm"  {
+            format_left  " #[fg=white,bold,bg=#3c3836]{session}  {mode}#[bg=#3c3836] {tabs}"
+            format_right "{datetime}"
+            format_space "#[bg=#3c3836]"
+
+            border_enabled  "false"
+            border_char     "─"
+            border_format   "#[fg=#98971a]{char}"
+            border_position "top"
+
+            // hide_frame_for_single_pane "true"
+
+            mode_normal  "#[bg=#3c3836,fg=#98971a] {name} "
+            mode_tmux    "#[bg=#3c3836] {name} "
+
+            tab_active              "#[bg=#98971a,fg=#3c3836] {index}│{name} #[fg=#98971a,bg=#3c3836]"
+            tab_active_fullscreen   "#[bg=#98971a,fg=#3c3836] {index}│{name} [Full] #[fg=#98971a,bg=#3c3836]"
+            tab_active_sync         "#[bg=#98971a,fg=#3c3836] {index}│{name} [Sync] #[fg=#98971a,bg=#3c3836]"
+            tab_normal              "#[bg=#d5c4a1,fg=#3c3836] {index}│{name} #[fg=#d5c4a1,bg=#3c3836]"
+            tab_normal_fullscreen   "#[bg=#d5c4a1,fg=#3c3836] {index}│{name} [Full] #[fg=#d5c4a1,bg=#3c3836]"
+            tab_normal_sync         "#[bg=#d5c4a1,fg=#3c3836] {index}│{name} [Sync] #[fg=#d5c4a1,bg=#3c3836]"
+
+            datetime        "#[bg=#3c3836,fg=#98971a] {format} "
+            datetime_format "%d-%m-%Y %H:%M"
+            datetime_timezone "Asia/Kolkata"
+        }
+    }
+}
+
