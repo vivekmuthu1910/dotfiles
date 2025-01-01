@@ -1,0 +1,334 @@
+# yaml-language-server: $schema=https://carapace.sh/schemas/command.json
+name: zellij
+
+description: Zellij manages terminal multiplexer sessions
+
+flags:
+  -c, --config=: Change where zellij looks for the configuration file
+  --config-dir=: Change where zellij looks for the configuration directory
+  -d, --debug: Specify emitting additional debug information
+  --data-dir=: Change where zellij looks for plugins
+  -h, --help: Print help information
+  -l, --layout=: Name of a predefined layout inside the layout directory or the path to a layout file
+  --max-panes=: Maximum panes on screen
+  -n, --new-session-with-layout=: New session. Name of a predefined layout inside the layout directory or the path to a layout file
+  -s, --session=: Specify name of a new session
+  -V, --version: Print version information
+
+persistentflags:
+  --help: Print help information
+
+completion:
+  flag:
+    config: ["$files([.kdl])"]
+    config-dir: ["$directories"]
+    data-đir: ["$directories"]
+    layout:
+      [
+        "$files([.kdl])",
+        "$(ls ~/.config/zellij/layouts | sed 's/.kdl//' | grep -v swap)",
+      ]
+    new-session-with-layout:
+      [
+        "$files([.kdl])",
+        "$(ls ~/.config/zellij/layouts | sed 's/.kdl//' | grep -v swap)",
+      ]
+
+commands:
+  - name: list-sessions
+    aliases: [ls]
+    description: List active sessions
+    flags:
+      -n, --no-formatting: Do not add colors and formatting to the list
+      -r, --reverse: List the sessions in reverse order
+      -s, --short: Print just the session name
+
+  - name: attach
+    aliases: [a]
+    description: Attach to a session
+    flags:
+      -b, --create-background: Create a detached session in the background If one does not exist
+      -c, --create: Create a session if one does not exist
+      -f, --force-run-commands: If resurrecting a dead session, immediately run all its commands on startup
+      --index=: Number of the session index in the active sessions ordered by creation date
+    completion:
+      positional:
+        - ["$(zellij ls -sn)"]
+
+  - name: kill-all-sessions
+    aliases: [ka]
+    description: Kill all sessions
+    flags:
+      -y, --yes: Automatic yes to prompts
+
+  - name: kill-session
+    aliases: [k]
+    description: Kill a specific session
+    completion:
+      positional:
+        - ["$(zellij ls -n | grep -v EXITED | awk '{print $1}')"]
+
+  - name: delete-all-sessions
+    aliases: [da]
+    description: Delete all sessions
+    flags:
+      -f,--force: Kill the sessions if they're running before deleting them
+      -y, --yes: Automatic yes to prompts
+
+  - name: delete-session
+    aliases: [d]
+    description: Delete a specific session
+    flags:
+      -f, --force: Kill the session if they're running before deleting it
+    completion:
+      positional:
+        - ["$(zellij ls -sn)"]
+
+  - name: run
+    description: Run a command in new pane
+    flags:
+      -c, --close-on-exit: Close the pane immediately when its command exits
+      --cwd=: Change the working directory of the new pane
+      -d, --direction=: Direction to open the new pane in
+      -f, --floating: Open the new pane in floating mode
+      -i, --in-place: Open the new pane in place of the current pane, temporarily suspending it
+      -n, --name=: Name of the new pane
+      -s, --start-suspended: Start the command suspended, only running after you first presses ENTER
+      --height=: Height if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
+      --width=: Width if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
+      -x, --x=: x coordinates if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
+      -y, --y=: y coordinates if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
+    completion:
+      flag:
+        direction: [ "right", "left", "up", "down"]
+      dash:
+        - [ "$executables"]
+
+  - name: action
+    commands:
+      - name: clear
+        description: Clear all buffers for a focused pane
+      - name: close-pane
+        description:  Close the focused pane
+      - name: close-tab
+        description: Close the current tab
+      - name: dump-layout
+        description: Dump current layout to stdout
+      - name: dump-screen
+        description: Dump the focused pane to a file
+        flags:
+          -f, --full: Dump the pane with full scrollback
+        completion:
+          positional:
+            - ["$files"]
+      - name: edit
+        description: Open the specified file in a new zellij pane with your default EDITOR
+        flags:
+          --cwd=: Change the working directory of the new pane
+          -d, --direction=: Direction to open the new pane in
+          -f, --floating: Open the new pane in floating mode
+          -i, --in-place: Open the new pane in place of the current pane, temporarily suspending it
+          -n, --name=: Name of the new pane
+          --height=: Height if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
+          --width=: Width if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
+          -x, --x=: x coordinates if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
+          -y, --y=: y coordinates if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
+          -l, --line-number=: Open the file at the specified line number
+        completion:
+          flag:
+            direction: [ "right", "left", "up", "down"]
+          positional:
+            - ["$files"]
+      - name: edit-scrollback
+        description: Open the pane scrollback in your default editor
+      - name: focus-next-pane
+        description: Change focus to the next pane
+      - name: focus-previous-pane
+        description: Change focus to the previous pane
+      - name: go-to-next-tab
+        description: Go to the next tab
+      - name: go-to-previous-tab
+        description: Go to the previous tab
+      - name: go-to-tab
+        description: Go to tab with index [index]
+      - name: go-to-tab-name
+        description: Go to tab with name [name]
+        flags:
+          -c, --create: Create a tab if one does not exist
+        completion:
+          positional:
+            - ["$(zellij action query-tab-names)"]
+      - name: half-page-scroll-down
+        description: Scroll down half page in focus pane
+      - name: half-page-scroll-up
+        description: Scroll up half page in focus pane
+      - name: help
+        description: Print this message or the help of the given subcommand(s)
+        completion:
+          positional:
+            - [ "clear", "close-pane", "close-tab", "dump-layout", "dump-screen", "edit", "edit-scrollback",
+                "focus-next-pane", "focus-previous-pane", "go-to-next-tab", "go-to-previous-tab", "go-to-tab",
+                "go-to-tab-name", "half-page-scroll-down", "half-page-scroll-up", "help", "launch-or-focus-plugin",
+                "launch-plugin", "list-clients", "move-focus", "move-focus-or-tab", "move-pane", "move-pane-backwards",
+                "move-tab", "new-pane", "new-tab", "next-swap-layout", "page-scroll-down", "page-scroll-up", "pipe",
+                "previous-swap-layout", "query-tab-names", "rename-pane", "rename-session", "rename-tab", "resize",
+                "scroll-down", "scroll-to-bottom", "scroll-to-top", "scroll-up", "start-or-reload-plugin", "switch-mode",
+                "toggle-active-sync-tab", "toggle-floating-panes", "toggle-fullscreen", "toggle-pane-embed-or-floating",
+                "toggle-pane-frames", "undo-rename-pane", "undo-rename-tab", "write", "write-chars" ]
+      - name: launch-or-focus-plugin
+        flags: 
+          -c, --configuration=:
+          -f, --floating:
+          -i, --in-place:
+          -m, --move-to-focused-tab:
+          -s, --skip-plugin-cache:
+      - name: launch-plugin
+        flags: 
+          -c, --configuration=:
+          -f, --floating:
+          -i, --in-place:
+          -s, --skip-plugin-cache:
+      - name: list-clients
+        description: List connected clients
+      - name: move-focus
+        description: Move the focused pane in the specified direction
+        completion:
+          positional:
+            - [left, right, up, down]
+      - name: move-focus-or-tab
+        description: Move focus to the pane or tab (if on screen edge) in the specified direction
+        completion:
+          positional:
+            - [left, right, up, down]
+      - name: move-pane
+        description: Change the location of the focused pane in the specified direction or rotate forwards
+        completion:
+          positional:
+            - [left, right, up, down]
+      - name: move-pane-backwards
+        description: Rotate the location of the previous pane backwards
+      - name: move-tab
+        description: Move the focused tab in the specified direction
+        completion:
+          positional:
+            - [left, right]
+      - name: new-pane
+        description: Open a new pane in the specified direction [right|down]
+        flags:
+          -c, --close-on-exit: Close the pane immediately when its command exits
+          --configuration=:
+          --cwd=: Change the working directory of the new pane
+          -d, --direction=: Direction to open the new pane in
+          -f, --floating: Open the new pane in floating mode
+          -i, --in-place: Open the new pane in place of the current pane, temporarily suspending it
+          -n, --name=: Name of the new pane
+          -s, --start-suspended: Start the command suspended, only running after you first presses ENTER
+          --height=: Height if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
+          --width=: Width if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
+          -x, --x=: x coordinates if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
+          -y, --y=: y coordinates if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
+          -p, --plugin=: Plugin to load
+          --skip-plugin-cache:
+        completion:
+          flag:
+            direction: [ "right", "left", "up", "down"]
+          dash:
+            - [ "$executables"]
+      - name: new-tab
+        description: Create a new tab, optionally with a specified tab layout and name
+        flags:
+          -c, --close-on-exit: Close the pane immediately when its command exits
+          -l, --layout=: Layout to use for new tab
+          --layout-dir=: Default folder to look for new layouts
+          --cwd=: Change the working directory of the new pane
+          -n, --name=: Name of the new tab
+        completion:
+          flag:
+            layout:
+              [
+                "$files([.kdl])",
+                "$(ls ~/.config/zellij/layouts | sed 's/.kdl//' | grep -v swap)",
+              ]
+            layout-dir: ["$directories"]
+      - name: next-swap-layout
+      - name: page-scroll-down
+        description: Scroll down one page in focus pane
+      - name: page-scroll-up
+        description: Scroll up one page in focus pane
+      - name: pipe
+        description: Send data to one or more plugins, launch them if they are not running
+      - name: previous-swap-layout
+      - name: query-tab-names
+        description: Query all tab names
+      - name: rename-pane
+        description: Renames the focused pane
+      - name: rename-session
+        description: Renames the current session
+      - name: rename-tab
+        description: Renames the focused pane
+      - name: resize
+        description: increase or decrease the focused panes area at the specified border
+        completion:
+          positional:
+            - [increase, decrease]
+            - [left, right, up, down]
+      - name: scroll-down
+        description: Scroll down in focus pane
+      - name: scroll-to-bottom
+        description: Scroll down to bottom in focus pane
+      - name: scroll-to-top
+        description: Scroll up to top in focus pane
+      - name: scroll-up
+        description: Scroll up in the focused pane
+      - name: start-or-reload-plugin
+        flags:
+          -c, --configuration=:
+      - name: switch-mode
+        description: Switch input mode of all connected clients
+        completion:
+          positional:
+            - [locked, pane, tab, resize, move, search, session]
+      - name: toggle-active-sync-tab
+        description: Toggle between sending text commands to all panes on the current tab and normal mode
+      - name: toggle-floating-panes
+        description: Toggle the visibility of all floating panes in the current Tab, open one if none exist
+      - name: toggle-fullscreen
+        description: Toggle between fullscreen focus pane and normal layout
+      - name: toggle-pane-embed-or-floating
+        description: Embed focused pane if floating or float focused pane if embedded
+      - name: toggle-pane-frames
+        description: Toggle frames around panes in the UI
+      - name: undo-rename-pane
+        description: Remove a previously set pane name
+      - name: undo-rename-tab
+        description: Remove a previously set tab name
+      - name: write
+        description: Write bytes to the terminal
+      - name: write-chars
+        description: Write characters to the terminal
+      
+  - name: help
+    description: Show help for subcommands
+    completion:
+      positional:
+        - [
+            "action\tSend actions to a specific session [aliases: ac]",
+            "attach\tAttach to a session [aliases: a]",
+            "convert-config",
+            "convert-layout",
+            "convert-theme",
+            "delete-all-sessions\tDelete all sessions [aliases: da]",
+            "delete-session\tDelete a specific session [aliases: d]",
+            "edit\tEdit file with default $EDITOR / $VISUAL [aliases: e]",
+            "help\tPrint this message or the help of the given subcommand(s)",
+            "kill-all-sessions\tKill all sessions [aliases: ka]",
+            "kill-session\tKill a specific session [aliases: k]",
+            "list-aliases\tList existing plugin aliases [aliases: la]",
+            "list-sessions\tList active sessions [aliases: ls]",
+            "options\tChange the behaviour of zellij",
+            "pipe\tSend data to one or more plugins, launch them if they are not running",
+            "plugin\tLoad a plugin [aliases: p]",
+            "run\tRun a command in a new pane [aliases: r]",
+            "setup\tSetup zellij and check its configuration",
+          ]
+

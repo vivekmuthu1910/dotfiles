@@ -205,7 +205,7 @@ $env.config = {
     history: {
         max_size: 100_000 # Session has to be reloaded for this to take effect
         sync_on_enter: true # Enable to share history between multiple sessions, else you have to close the session to write history to file
-        file_format: "plaintext" # "sqlite" or "plaintext"
+        file_format: "sqlite" # "sqlite" or "plaintext"
         isolation: false # only available with sqlite file_format. true enables history isolation, false disables it. true will allow the history to be isolated to the current session using up/down arrows. false will allow the history to be shared across all sessions.
     }
 
@@ -292,13 +292,22 @@ $env.config = {
     }
 
     hooks: {
-        pre_prompt: [{ null }] # run before the prompt is shown
+        pre_prompt: [{ ||
+          if (which direnv | is-empty) {
+            return
+          }
+
+          direnv export json | from json | default {} | load-env
+          if 'ENV_CONVERSIONS' in $env and 'PATH' in $env.ENV_CONVERSIONS {
+            $env.PATH = do $env.ENV_CONVERSIONS.PATH.from_string $env.PATH
+          }
+        }] # run before the prompt is shown
         pre_execution: [{ null }] # run before the repl input is run
-        env_change: {
-            PWD: [{|before, after| 
-                direnv export json | from json | default {} | load-env
-            }] # run if the PWD environment is different since the last repl input
-        }
+        # env_change: {
+        #     PWD: [{|before, after| 
+        #         direnv export json | from json | default {} | load-env
+        #     }] # run if the PWD environment is different since the last repl input
+        # }
         display_output: "if (term size).columns >= 100 { table -e } else { table }" # run to display the output of a pipeline
         command_not_found: { null } # return an error message when a command is not found
     }
@@ -899,10 +908,11 @@ $env.config = {
     ]
 }
 
-source ./zoxide.nu
-source ./atuin.nu
-source ./starship.nu
-source ./just.nu
+use ~/.cache/starship/init.nu
+source ~/.cache/zoxide/.zoxide.nu
+source ~/.cache/atuin/init.nu
+source ~/.cache/carapace/init.nu
+
 use ./yazi.nu *
 use ./ya.nu *
 
