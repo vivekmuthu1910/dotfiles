@@ -1,0 +1,72 @@
+(defcfg
+	process-unmapped-keys yes
+	danger-enable-cmd yes
+)
+
+(defvar
+  ;; Note: consider using different time values for your different fingers.
+  ;; For example, your pinkies might be slower to release keys and index
+  ;; fingers faster.
+  tap-time 200
+  hold-time 150
+)
+
+(defalias
+  a (tap-hold $tap-time $hold-time a lmet)
+  s (tap-hold $tap-time $hold-time s lalt)
+  d (tap-hold $tap-time $hold-time d lsft)
+  f (tap-hold $tap-time $hold-time f lctl)
+  j (tap-hold $tap-time $hold-time j rctl)
+  k (tap-hold $tap-time $hold-time k rsft)
+  l (tap-hold $tap-time $hold-time l ralt)
+  ; (tap-hold $tap-time $hold-time ; rmet)
+
+  kbtop(cmd pkill btop)
+  blayer(tap-hold $tap-time $hold-time esc (layer-switch default))
+  numlayer(tap-hold $tap-time $hold-time n (layer-switch numbers))
+)
+
+(defsrc
+  esc  f8
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt rctl
+)
+
+(deflayer default
+  caps   lrld
+  grv      1    2    3    4    5    6          7    8    9    0    -    =    bspc
+  tab      q    w    e    r    t    y          u    i    o    p    [    ]    \
+  @blayer  @a   @s   @d   @f   g    h          @j   @k   @l   @;   '    ret
+  lsft     z    x    c    v    b    @numlayer  m    ,    .    /    rsft
+  lctl     lmet lalt           spc                ralt rctl
+)
+
+;;(deflayermap (kill-cmd) b @kbtop  caps @blayer )
+
+(deflayermap (numbers)
+  a 1
+  s 2
+  d 3
+  f 4
+  g 5
+  h 6
+  j 7
+  k 8
+  l 9
+  ; 0
+  caps @blayer
+  q kp1
+  w kp2
+  e kp3
+  r kp4
+  t kp5
+  y kp6
+  u kp7
+  i kp8
+  o kp9
+  p kp0
+  ___ XX
+)
