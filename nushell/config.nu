@@ -20,6 +20,7 @@ $env.config.edit_mode = "vi" # emacs, vi
                 $env.XDG_DATA_DIRS = do $env.ENV_CONVERSIONS.XDG_DATA_DIRS.from_string $env.XDG_DATA_DIRS
                 $env.XDG_CONFIG_DIRS = do $env.ENV_CONVERSIONS.XDG_CONFIG_DIRS.from_string $env.XDG_CONFIG_DIRS
                 $env.NIX_PATH = do $env.ENV_CONVERSIONS.NIX_PATH.from_string $env.NIX_PATH
+                $env.__zoxide_hooked = do $env.ENV_CONVERSIONS.__zoxide_hooked.from_string $env.__zoxide_hooked
             }
         ]
     }
