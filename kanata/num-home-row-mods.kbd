@@ -1,29 +1,64 @@
 (defcfg
-	process-unmapped-keys yes
-	danger-enable-cmd yes
+  process-unmapped-keys yes
+;;  danger-enable-cmd yes
 )
 
 (defvar
   ;; Note: consider using different time values for your different fingers.
   ;; For example, your pinkies might be slower to release keys and index
   ;; fingers faster.
+  pinky-tap-time 200
+  pinky-hold-time 250
   tap-time 200
   hold-time 150
+  blayer-tap-time 250
+
+  left-hand-keys (
+    q w e r t
+    a s d f g
+    z x c v b
+  )
+  right-hand-keys (
+    y u i o p
+    h j k l ;
+    n m , . /
+  )
+)
+
+
+(defalias
+  blayer (tap-hold $blayer-tap-time $hold-time esc (layer-switch qwerty))
+  numlayer (tap-hold $tap-time $hold-time n (layer-switch numbers))
+  fill-layer (tap-hold $tap-time $hold-time tab (layer-switch fills))
+  sp-layer (tap-hold $tap-time $hold-time spc (layer-while-held layers))
+)
+
+(defvirtualkeys
+  to-base (layer-switch qwerty)
 )
 
 (defalias
-  a (tap-hold $tap-time $hold-time a lmet)
-  s (tap-hold $tap-time $hold-time s lalt)
-  d (tap-hold $tap-time $hold-time d lsft)
-  f (tap-hold $tap-time $hold-time f lctl)
-  j (tap-hold $tap-time $hold-time j rctl)
-  k (tap-hold $tap-time $hold-time k rsft)
-  l (tap-hold $tap-time $hold-time l ralt)
-  ; (tap-hold $tap-time $hold-time ; rmet)
+  tap (multi
+    (layer-switch nomods)
+    (on-idle 200 tap-vkey to-base)
+  )
 
-  kbtop(cmd pkill btop)
-  blayer(tap-hold $tap-time $hold-time esc (layer-switch default))
-  numlayer(tap-hold $tap-time $hold-time n (layer-switch numbers))
+  a (tap-hold-release-keys $pinky-tap-time $pinky-hold-time (multi a @tap) lmet $left-hand-keys)
+  s (tap-hold-release-keys $tap-time $hold-time (multi s @tap) lalt $left-hand-keys)
+  d (tap-hold-release-keys $tap-time $hold-time (multi d @tap) lctl $left-hand-keys)
+  f (tap-hold-release-keys $tap-time $hold-time (multi f @tap) lsft $left-hand-keys)
+  j (tap-hold-release-keys $tap-time $hold-time (multi j @tap) rsft $right-hand-keys)
+  k (tap-hold-release-keys $tap-time $hold-time (multi k @tap) rctl $right-hand-keys)
+  l (tap-hold-release-keys $tap-time $hold-time (multi l @tap) ralt $right-hand-keys)
+  ; (tap-hold-release-keys $pinky-tap-time $pinky-hold-time (multi ; @tap) rmet $right-hand-keys)
+)
+
+;; Fill aliases
+(defalias
+  9 9
+  2 2
+  passwd (macro  b f b s S-k d @9 @2 S-1)
+  user (macro v i v e k)
 )
 
 (defsrc
@@ -35,16 +70,25 @@
   lctl lmet lalt           spc            ralt rctl
 )
 
-(deflayer default
+(deflayer qwerty
   caps   lrld
-  grv      1    2    3    4    5    6          7    8    9    0    -    =    bspc
-  tab      q    w    e    r    t    y          u    i    o    p    [    ]    \
-  @blayer  @a   @s   @d   @f   g    h          @j   @k   @l   @;   '    ret
-  lsft     z    x    c    v    b    @numlayer  m    ,    .    /    rsft
-  lctl     lmet lalt           spc                ralt rctl
+  grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab    q    w    e    r    t    y    u    i    o    p    [    ]    \
+  esc    @a   @s   @d   @f   g    h    @j   @k   @l   @;   '    ret
+  lsft   z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl   lmet lalt           @sp-layer                ralt rctl
 )
 
-;;(deflayermap (kill-cmd) b @kbtop  caps @blayer )
+(deflayermap (nomods)
+  a a
+  s s
+  d d
+  f f
+  j j
+  k k
+  l l
+  ; ;
+)
 
 (deflayermap (numbers)
   a 1
@@ -57,7 +101,6 @@
   k 8
   l 9
   ; 0
-  caps @blayer
   q kp1
   w kp2
   e kp3
@@ -69,4 +112,19 @@
   o kp9
   p kp0
   ___ XX
+  spc @sp-layer
 )
+
+(deflayermap (fills)
+  p @passwd
+  caps @blayer
+  u @user
+  spc @sp-layer
+)
+
+(deflayermap (layers) 
+  b (layer-switch qwerty)
+  n (layer-switch numbers)
+  f (layer-switch fills)
+)
+
