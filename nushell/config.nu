@@ -7,26 +7,25 @@ $env.config.history = {
 }
 $env.config.buffer_editor = "hx" # command that will be used to edit the current line buffer with ctrl+o, if unset fallback to $env.EDITOR and $env.VISUAL
 $env.config.edit_mode = "vi" # emacs, vi
-    $env.config.hooks = {
-    env_change: {
-        PWD: [
-            {|before, after| 
-                if (which direnv | is-empty) {
-                    return
-                }
-                direnv export json | from json | default {} | load-env
-                
-                $env.PATH = do $env.ENV_CONVERSIONS.PATH.from_string $env.PATH
-                $env.XDG_DATA_DIRS = do $env.ENV_CONVERSIONS.XDG_DATA_DIRS.from_string $env.XDG_DATA_DIRS
-                $env.XDG_CONFIG_DIRS = do $env.ENV_CONVERSIONS.XDG_CONFIG_DIRS.from_string $env.XDG_CONFIG_DIRS
-                $env.NIX_PATH = do $env.ENV_CONVERSIONS.NIX_PATH.from_string $env.NIX_PATH
-                $env.__zoxide_hooked = do $env.ENV_CONVERSIONS.__zoxide_hooked.from_string $env.__zoxide_hooked
-            }
-        ]
-    }
-}
+
+
+$env.config = ($env.config | update hooks ($env.config.hooks | default {} env_change))
+$env.config.hooks.env_change = ($env.config.hooks.env_change | default [] PWD)
+$env.config.hooks.env_change.PWD = ($env.config.hooks.env_change.PWD | append  [{|before, after| 
+    if (which direnv | is-empty) { return }
+    direnv export json | from json | default {} | load-env
+    $env.PATH = do $env.ENV_CONVERSIONS.PATH.from_string $env.PATH
+    $env.XDG_DATA_DIRS = do $env.ENV_CONVERSIONS.XDG_DATA_DIRS.from_string $env.XDG_DATA_DIRS
+    $env.XDG_CONFIG_DIRS = do $env.ENV_CONVERSIONS.XDG_CONFIG_DIRS.from_string $env.XDG_CONFIG_DIRS
+    $env.NIX_PATH = do $env.ENV_CONVERSIONS.NIX_PATH.from_string $env.NIX_PATH
+    # $env.__zoxide_hooked = do $env.ENV_CONVERSIONS.__zoxide_hooked.from_string $env.__zoxide_hooked
+}, {|_, dir| zoxide add -- $dir }])
 
 alias lvim = with-env {NVIM_APPNAME: lazy_nvim} { nvim }
+alias ":q" = exit
+alias ":qa" = exit
+alias ":wq" = exit
+alias ":wqa" = exit
 
 use ~/.cache/starship/init.nu
 source ~/.cache/zoxide/.zoxide.nu
