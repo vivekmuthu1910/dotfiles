@@ -1,0 +1,25 @@
+# Appearance
+font-size = 10.2
+theme = GruvboxDarkHard
+gtk-tabs-location = hidden
+
+# Shell
+command = nu
+
+# Keybinds
+
+keybind = ctrl+shift+s=toggle_tab_overview
+
+## splitting panes
+keybind = ctrl+shift+h=new_split:left
+keybind = ctrl+shift+j=new_split:down
+keybind = ctrl+shift+l=new_split:right
+keybind = ctrl+shift+k=new_split:up
+keybind = ctrl+shift+e=unbind
+keybind = ctrl+shift+o=unbind
+
+## focusing panes
+keybind = alt+h=goto_split:left
+keybind = alt+j=goto_split:down
+keybind = alt+l=goto_split:right
+keybind = alt+k=goto_split:up
